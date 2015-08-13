@@ -1,72 +1,128 @@
-/**
- * Created by v3500 on 13/08/2015.
- */
+
+
+var game = new Phaser.Game(800, 500, Phaser.CANVAS, 'phaser-example', { preload: preload, create: create, update: update });
+
 
 
 
 function preload() {
 
-    game.stage.backgroundColor = '#85b5e1';
+    game.stage.backgroundColor = '#000000';
 
-    game.load.baseURL = 'http://examples.phaser.io/assets/';
-    game.load.crossOrigin = 'anonymous';
-
-    game.load.image('player', 'sprites/phaser-dude.png');
-    game.load.image('platform', 'sprites/platform.png');
-
-    game.load.spritesheet('mummy', 'assets/sprites/metalslug_mummy37x45.png', 37, 45, 18);
-
-
-
+    game.load.spritesheet('glowsprite', '../img/glowspriteyellowbig.png', 64, 65, 12);
+    game.load.image('star', '../img/star.png');
+    game.load.audio("music", "../sound/DII.mp3.mp3");
 }
 
+var glow;
+var screen;
+var upKey;
+var downKey;
+var leftKey;
+var rightKey;
+var emitter;
+var style;
+var text;
+var scene = 0;
 
-var player;
-var platforms;
-var cursors;
-var jumpButton;
 
 function create() {
 
-    var mummy = game.add.sprite(300, 200, 'mummy');
-    var walk = mummy.animations.add('walk');
-    mummy.animations.play('walk', 30, true);
+    game.sound.play("music");
 
-    game.physics.arcade.enable(player);
+    emitter = game.add.emitter(game.world.centerX, 250);
+//emmiter.anchor.setTo(glow)
+    emitter.makeParticles('star');
 
-    player.body.collideWorldBounds = true;
-    player.body.gravity.y = 500;
+    emitter.minParticleSpeed.setTo(-100, 50);
+    emitter.maxParticleSpeed.setTo(50, -100);
+    emitter.minParticleScale = 0.01;
+    emitter.maxParticleScale = 0.3;
+    emitter.gravity = -0;
+    emitter.flow(200000000, 700, 30, -1);
 
-    platforms = game.add.physicsGroup();
+    glow = game.add.sprite(game.world.centerX, 250, 'glowsprite');
+    var walk = glow.animations.add('walk');
+    glow.animations.play('walk', 7, true);
 
-    platforms.create(500, 150, 'platform');
-    platforms.create(-200, 300, 'platform');
-    platforms.create(400, 450, 'platform');
+    glow.anchor.setTo(0.5, 0.5);
+//text.anchor.setTo(0.5, 0.5);
 
-    platforms.setAll('body.immovable', true);
+    style = {font: "65px courier New", fill: "#ffffff", align: "center"};
+    text = game.add.text(game.world.centerX, 50, "Try", style);
 
-    cursors = game.input.keyboard.createCursorKeys();
-    jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+
+    game.physics.arcade.enable(glow);
+
+    glow.body.collideWorldBounds = true;
+
+
+    upKey = game.input.keyboard.addKey(Phaser.Keyboard.UP);
+    downKey = game.input.keyboard.addKey(Phaser.Keyboard.DOWN);
+    leftKey = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
+    rightKey = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
 
 }
 
+
+    function changeSceneRight(){
+    text.destroy();
+        game.add.text(50, 50, "What do you want to do? Left or right?", style);
+    }
+
+    function changeSceneLeft(){
+
+
+    }
+
+
+
 function update () {
 
-    game.physics.arcade.collide(player, platforms);
 
-    player.body.velocity.x = 0;
 
-    if (cursors.left.isDown)
-    {
-        player.body.velocity.x = -250;
-    }
-    else if (cursors.right.isDown)
-    {
-        player.body.velocity.x = 250;
+   //glow.body.velocity.x = 10;
+
+    if (glow.x > 750) {
+        glow.destroy();
+        glow = game.add.sprite(game.world.centerX, 250, 'glowsprite');
+        var walk = glow.animations.add('walk');
+        glow.animations.play('walk',7, true);
+        changeSceneRight();
+
+
     }
 
-    if (jumpButton.isDown && (player.body.onFloor() || player.body.touching.down))
-    {
-        player.body.velocity.y = -400;
+    if (glow.x < 50) {
+        glow.destroy();
+        glow = game.add.sprite(game.world.centerX, 250, 'glowsprite');
+        var walk = glow.animations.add('walk');
+        glow.animations.play('walk',7, true);
+
     }
+
+
+
+
+    if (upKey.isDown)
+    {
+        glow.y-=2;
+    }
+    else if (downKey.isDown)
+    {
+        glow.y+=2;
+    }
+
+    if (leftKey.isDown)
+    {
+        glow.x-=2;
+    }
+    else if (rightKey.isDown)
+    {
+        glow.x+=2;
+
+    }
+
+
+
 }
